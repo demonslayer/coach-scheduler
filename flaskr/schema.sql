@@ -9,7 +9,8 @@ CREATE TABLE coach (
 
 CREATE TABLE user (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	name TEXT NOT NULL,
+	username TEXT NOT NULL,
+	password TEXT NOT NULL,
 	coach_id INTEGER NOT NULL,
 	FOREIGN KEY (coach_id) REFERENCES coach (id)
 );
