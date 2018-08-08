@@ -5,21 +5,29 @@
 {% endblock %}
 
 {% block content %}
-  <form method="post">
-    <label for="date">Date</label>
-    <input type="date" name="date" id="date" required>
-    <label for="time">Time</label>
-    <select name="time" id="time" required>
-    	<option value="09">9:00 AM</option>
-    	<option value="10">10:00 AM</option>
-    	<option value="11">11:00 AM</option>
-    	<option value="12">12:00 PM</option>
-    	<option value="13">1:00 PM</option>
-    	<option value="14">2:00 PM</option>
-    	<option value="15">3:00 PM</option>
-    	<option value="16">4:00 PM</option>
-    	<option value="17">5:00 PM</option>
-    </select>
-    <input type="submit" value="Save">
-  </form>
+	
+	{% if appointments %}
+		<p>Your coach is busy during the following times:</p>
+		{% for appointment in appointments %}
+			<p>{{appointment['start_time']}}</p>
+		{% endfor %}
+	{% endif %}
+
+	<form method="post">
+	    <label for="date">Date</label>
+	    <input type="date" name="date" id="date" required>
+	    <label for="time">Time</label>
+	    <select name="time" id="time" required>
+	    	<option value="09">9:00 AM</option>
+	    	<option value="10">10:00 AM</option>
+	    	<option value="11">11:00 AM</option>
+	    	<option value="12">12:00 PM</option>
+	    	<option value="13">1:00 PM</option>
+	    	<option value="14">2:00 PM</option>
+	    	<option value="15">3:00 PM</option>
+	    	<option value="16">4:00 PM</option>
+	    	<option value="17">5:00 PM</option>
+	    </select>
+	    <input type="submit" value="Save">
+	</form>
 {% endblock %}

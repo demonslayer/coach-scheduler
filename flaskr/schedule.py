@@ -33,6 +33,10 @@ def index():
 @login_required
 def create():
 	db = get_db()
+	all_appointments = db.execute(
+		'SELECT * FROM appointment WHERE coach_id = ? ORDER BY start_time DESC', 
+		(g.user['coach_id'],)
+	).fetchall()
 
 	if request.method == 'POST':
 		date = request.form['date']
@@ -65,4 +69,4 @@ def create():
 			db.commit()
 			return redirect(url_for('schedule.index'))
 
-	return render_template('schedule/create.html')
+	return render_template('schedule/create.html', appointments = all_appointments)
