@@ -12,11 +12,8 @@ from datetime import datetime
 bp = Blueprint('schedule', __name__)
 
 @bp.route('/')
+@login_required
 def index():
-
-	if g.user is None:
-		return render_template('auth/login.html')
-	
 	db = get_db();
 	appointments = db.execute(
 		'SELECT * FROM appointment WHERE user_id = ? ORDER BY start_time DESC', 
@@ -29,9 +26,9 @@ def index():
 
 	return render_template('schedule/index.html', coach=coach['name'], appointments = appointments)
 
-@bp.route('/create', methods=('GET', 'POST'))
+@bp.route('/schedule', methods=('GET', 'POST'))
 @login_required
-def create():
+def schedule():
 	db = get_db()
 	all_appointments = db.execute(
 		'SELECT * FROM appointment WHERE coach_id = ? ORDER BY start_time DESC', 
@@ -69,4 +66,4 @@ def create():
 			db.commit()
 			return redirect(url_for('schedule.index'))
 
-	return render_template('schedule/create.html', appointments = all_appointments)
+	return render_template('schedule/schedule.html', appointments = all_appointments)

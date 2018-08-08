@@ -3,7 +3,7 @@
 {% block header %}
 	<h1>{% block title %}Schedule{% endblock %}</h1>
 	{% if g.user %}
-    	<a class="action" href="{{ url_for('schedule.create') }}">Schedule a New Appointment</a>
+    	<a class="action" href="{{ url_for('schedule.schedule') }}">Schedule a New Appointment</a>
 	{% endif %}
 {% endblock %}
 
