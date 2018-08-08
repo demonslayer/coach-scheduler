@@ -7,6 +7,8 @@ from werkzeug.exceptions import abort
 from flaskr.auth import login_required
 from flaskr.db import get_db
 
+from datetime import datetime
+
 bp = Blueprint('schedule', __name__)
 
 @bp.route('/')
@@ -30,21 +32,35 @@ def index():
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
 def create():
+	db = get_db()
+
 	if request.method == 'POST':
-		start_time = request.form['start_time']
+		date = request.form['date']
+		time = request.form['time']
 		coach_id = g.user['coach_id']
 		error = None
 
-		if not start_time:
+		if not time or not date:
 			error = 'Please choose an appointment time'
+		else:
+			converted_date = datetime.strptime(date + " " + time, '%Y-%m-%d %H')
+
+			existing_appointments = db.execute(
+				'SELECT * FROM appointment WHERE coach_id = ? AND start_time = ?',
+				(coach_id, converted_date)
+			).fetchone()
+
+			if existing_appointments is not None:
+				error  = "Your coach already has an appointment at that time"
 
 		if error is not None:
 			flash(error)
 		else:
-			db = get_db()
+			print(date + " " + time)
+			print(converted_date)
 			db.execute(
 				'INSERT INTO appointment (start_time, coach_id, user_id) VALUES (?, ?, ?)',
-				(start_time, coach_id, g.user['id'])
+				(converted_date, coach_id, g.user['id'])
 			)
 			db.commit()
 			return redirect(url_for('schedule.index'))
