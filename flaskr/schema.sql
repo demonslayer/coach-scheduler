@@ -17,9 +17,14 @@ CREATE TABLE user (
 
 CREATE TABLE appointment (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	start_time INTEGER NOT NULL,
+	start_time datetime NOT NULL,
 	coach_id INTEGER NOT NULL,
 	user_id INTEGER NOT NULL,
 	FOREIGN KEY (coach_id) REFERENCES coach (id),
 	FOREIGN KEY (user_id) REFERENCES user (id)
 );
+
+/* initializing with some "dummy" coaches the user can choose from */
+INSERT INTO coach (name) VALUES ('Morgan');
+INSERT INTO coach (name) VALUES ('Bob');
+INSERT INTO coach (name) VALUES ('Sara');
