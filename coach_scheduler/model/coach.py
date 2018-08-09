@@ -1,4 +1,4 @@
-from flaskr.db import get_db
+from coach_scheduler.db import get_db
 
 def get_all_coaches():
 	return get_db().execute('SELECT * FROM coach').fetchall()

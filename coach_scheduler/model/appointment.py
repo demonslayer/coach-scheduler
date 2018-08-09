@@ -1,4 +1,4 @@
-from flaskr.db import get_db
+from coach_scheduler.db import get_db
 
 def fetch_appointments_for_coach(coach_id):
 	return get_db().execute(

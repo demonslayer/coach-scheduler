@@ -6,8 +6,8 @@ from flask import (
 
 from werkzeug.security import check_password_hash
 
-from flaskr.model.user import *
-from flaskr.model.coach import *
+from coach_scheduler.model.user import *
+from coach_scheduler.model.coach import *
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 

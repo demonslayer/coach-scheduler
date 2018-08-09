@@ -1,4 +1,4 @@
-from flaskr.db import get_db
+from coach_scheduler.db import get_db
 from werkzeug.security import generate_password_hash
 
 def user_exists(username):
