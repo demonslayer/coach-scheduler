@@ -6,6 +6,8 @@ from werkzeug.exceptions import abort
 
 from flaskr.auth import login_required
 from flaskr.db import get_db
+from flaskr.model.coach import *
+from flaskr.model.appointment import *
 
 from datetime import datetime
 
@@ -14,26 +16,17 @@ bp = Blueprint('schedule', __name__)
 @bp.route('/')
 @login_required
 def index():
-	db = get_db();
-	appointments = db.execute(
-		'SELECT * FROM appointment WHERE user_id = ? ORDER BY start_time DESC', 
-		(g.user['id'],)
-	).fetchall()
+	appointments = fetch_appointments_for_user(g.user['id'])
 
-	coach = db.execute(
-		'SELECT * FROM coach WHERE id = ?', (g.user['coach_id'],)
-	).fetchone()
+	coach = get_coach(g.user['coach_id'])
 
 	return render_template('schedule/index.html', coach=coach['name'], appointments = appointments)
 
 @bp.route('/schedule', methods=('GET', 'POST'))
 @login_required
 def schedule():
-	db = get_db()
-	all_appointments = db.execute(
-		'SELECT * FROM appointment WHERE coach_id = ? ORDER BY start_time DESC', 
-		(g.user['coach_id'],)
-	).fetchall()
+	appointments = fetch_appointments_for_coach(g.user['coach_id'])
+	coach = get_coach(g.user['coach_id'])
 
 	if request.method == 'POST':
 		date = request.form['date']
@@ -46,24 +39,13 @@ def schedule():
 		else:
 			converted_date = datetime.strptime(date + " " + time, '%Y-%m-%d %H')
 
-			existing_appointments = db.execute(
-				'SELECT * FROM appointment WHERE coach_id = ? AND start_time = ?',
-				(coach_id, converted_date)
-			).fetchone()
-
-			if existing_appointments is not None:
-				error  = "Your coach already has an appointment at that time"
+			if appointment_exists(coach_id, converted_date):
+				error  = coach['name'] + " already has an appointment at that time"
 
 		if error is not None:
 			flash(error)
 		else:
-			print(date + " " + time)
-			print(converted_date)
-			db.execute(
-				'INSERT INTO appointment (start_time, coach_id, user_id) VALUES (?, ?, ?)',
-				(converted_date, coach_id, g.user['id'])
-			)
-			db.commit()
+			create_appointment(converted_date, coach_id, g.user['id'])
 			return redirect(url_for('schedule.index'))
 
-	return render_template('schedule/schedule.html', appointments = all_appointments)
+	return render_template('schedule/schedule.html', appointments = appointments, coach = coach['name'])

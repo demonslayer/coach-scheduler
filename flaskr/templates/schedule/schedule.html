@@ -7,7 +7,7 @@
 {% block content %}
 	
 	{% if appointments %}
-		<p>Your coach is busy during the following times:</p>
+		<p>{{coach}} is busy during the following times:</p>
 		{% for appointment in appointments %}
 			<p>{{appointment['start_time']}}</p>
 		{% endfor %}

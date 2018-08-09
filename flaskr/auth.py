@@ -4,16 +4,16 @@ from flask import (
 	Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
 
-from flaskr.db import get_db
+from flaskr.model.user import *
+from flaskr.model.coach import *
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
-	db = get_db()
-	all_coaches = db.execute('SELECT * FROM coach').fetchall()
+	all_coaches = get_all_coaches()
 
 	if request.method == 'POST':
 		username = request.form['username']
@@ -22,7 +22,7 @@ def register():
 
 		error = None
 
-		coach = db.execute( 'SELECT * FROM coach WHERE id = ?', (coach_id,)).fetchone()
+		coach = get_coach(coach_id)
 
 		if not username:
 			error = 'You need a username'
@@ -30,17 +30,11 @@ def register():
 			error = 'You need a password'
 		elif not coach_id or not coach:
 			error = 'You need a coach'
-		elif db.execute(
-			'SELECT id FROM user where username = ?', (username,)
-		).fetchone() is not None:
+		elif user_exists(username):
 			error = 'username {} is taken'.format(username)
 
 		if error is None:
-			db.execute(
-				'INSERT INTO user (username, password, coach_id) VALUES (?,?,?)',
-				(username, generate_password_hash(password), coach_id)
-			)
-			db.commit()
+			create_user(username, password, coach_id)
 			return redirect(url_for('auth.login'))
 
 		flash (error)
@@ -52,16 +46,8 @@ def login():
 	if request.method == 'POST':
 		username = request.form['username']
 		password = request.form['password']
-
-		print("YOU ARE HERE")
-
-		db = get_db()
 		error = None
-		user = db.execute(
-			'SELECT * FROM user WHERE username = ?', (username,)
-		).fetchone()
-
-		print("YOU ARE AFTER DB")
+		user = fetch_user_by_name(username)
 
 		if user is None:
 			error = 'Incorrect Username'
@@ -84,9 +70,7 @@ def load_logged_in_user():
 	if user_id is None:
 		g.user = None
 	else:
-		g.user = get_db().execute(
-			'SELECT * FROM user WHERE id =?', (user_id,)
-		).fetchone()
+		g.user = fetch_user_by_id(user_id)
 
 @bp.route('/logout')
 def logout():
